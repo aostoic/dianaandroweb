@@ -89,13 +89,6 @@ import { provideHttpClient } from "@angular/common/http";
               ></div>
             </div>
 
-            <!-- Close button -->
-            <button (click)="closeGiftModal()" class="gift-close-btn">
-              <span class="material-icons" style="font-size: 20px; color: #999"
-                >close</span
-              >
-            </button>
-
             <!-- Banner countdown -->
             <div class="gift-alert-banner">
               <span class="material-icons" style="font-size: 16px"
@@ -105,6 +98,9 @@ import { provideHttpClient } from "@angular/common/http";
                 >¡Faltan <strong>{{ daysLeft }} días</strong> para la
                 boda!</span
               >
+              <button (click)="closeGiftModal()" class="gift-close-btn">
+                <span class="material-icons" style="font-size: 18px; color: #fff">close</span>
+              </button>
             </div>
 
             <!-- Header -->

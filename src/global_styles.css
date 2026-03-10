@@ -273,8 +273,9 @@
 /* Close button */
 .gift-close-btn {
   position: absolute;
-  top: 0.5rem;
+  top: 50%;
   right: 0.5rem;
+  transform: translateY(-50%);
   z-index: 10;
   width: 2rem;
   height: 2rem;
@@ -283,16 +284,17 @@
   justify-content: center;
   border-radius: 9999px;
   border: none;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.15);
   cursor: pointer;
   transition: background 0.2s;
 }
 .gift-close-btn:hover {
-  background: #f3f3f3;
+  background: rgba(255, 255, 255, 0.3);
 }
 
 /* Alert banner */
 .gift-alert-banner {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
