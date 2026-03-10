@@ -17,7 +17,10 @@ import { CommonModule } from "@angular/common";
           class="w-14 h-14 mx-auto flex items-center justify-center rounded-full"
           style="background: rgba(184, 164, 114, 0.1)"
         >
-          <span class="material-icons text-3xl" style="color: var(--color-gold)">
+          <span
+            class="material-icons text-3xl"
+            style="color: var(--color-gold)"
+          >
             card_giftcard
           </span>
         </div>
@@ -47,6 +50,6 @@ export class GiftsComponent {
 
   openGifts(): void {
     // Dispatch a custom event that the root app listens to
-    window.dispatchEvent(new CustomEvent('open-gift-modal'));
+    window.dispatchEvent(new CustomEvent("open-gift-modal"));
   }
 }

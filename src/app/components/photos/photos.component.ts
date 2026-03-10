@@ -18,9 +18,14 @@ import { PhotoUploadModalComponent } from "../photo-upload-modal/photo-upload-mo
 
         <h1 style="margin-top: -25px; color: #fff">Fotos</h1>
 
-        <div class="section-divider mb-6" style="background: rgba(255,255,255,0.4)"></div>
+        <div
+          class="section-divider mb-6"
+          style="background: rgba(255,255,255,0.4)"
+        ></div>
 
-        <p class="text-sm font-light mb-8 opacity-90">Sube fotos de la boda al álbum</p>
+        <p class="text-sm font-light mb-8 opacity-90">
+          Sube fotos de la boda al álbum
+        </p>
 
         <div class="flex flex-col gap-4 max-w-xs mx-auto">
           <button
@@ -47,32 +52,37 @@ import { PhotoUploadModalComponent } from "../photo-upload-modal/photo-upload-mo
       (closeModal)="closeModal()"
     ></app-photo-upload-modal>
 
-    @if(modalUpload){
-    <div
-      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
-      (click)="closeModal()"
-    >
-      <div class="bg-white rounded-2xl w-full max-w-2xl mx-4 p-6 relative" (click)="$event.stopPropagation()">
-        <button
-          (click)="closeModal()"
-          class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+    @if (modalUpload) {
+      <div
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+        (click)="closeModal()"
+      >
+        <div
+          class="bg-white rounded-2xl w-full max-w-2xl mx-4 p-6 relative"
+          (click)="$event.stopPropagation()"
         >
-          <span class="material-icons text-gray-500">close</span>
-        </button>
-        <h4>Fotos subidas</h4>
-        <div class="section-divider mb-4"></div>
-        <p class="text-sm text-gray-500">
-          Acá se verán las fotos que has subido y las de los invitados.
-        </p>
+          <button
+            (click)="closeModal()"
+            class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
+          >
+            <span class="material-icons text-gray-500">close</span>
+          </button>
+          <h4>Fotos subidas</h4>
+          <div class="section-divider mb-4"></div>
+          <p class="text-sm text-gray-500">
+            Acá se verán las fotos que has subido y las de los invitados.
+          </p>
+        </div>
       </div>
-    </div>
     }
   `,
-  styles: [`
-    .photos-section {
-      background: linear-gradient(135deg, #b8a472 0%, #9a8a5e 100%);
-    }
-  `]
+  styles: [
+    `
+      .photos-section {
+        background: linear-gradient(135deg, #b8a472 0%, #9a8a5e 100%);
+      }
+    `,
+  ],
 })
 export class PhotosComponent {
   constructor(private weddingService: WeddingService) {}

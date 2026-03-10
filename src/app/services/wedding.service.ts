@@ -40,7 +40,7 @@ export class WeddingService {
       return {
         days: Math.floor(distance / (1000 * 60 * 60 * 24)),
         hours: Math.floor(
-          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
         ),
         minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
         seconds: Math.floor((distance % (1000 * 60)) / 1000),
@@ -122,17 +122,17 @@ export class WeddingService {
     const location = "Espaço Ondas, Los Ingleses, Florianópolis, Brasil";
 
     const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
-      title
+      title,
     )}&dates=${startDate.toISOString().replace(/[-:]/g, "").split(".")[0]}Z/${
       endDate.toISOString().replace(/[-:]/g, "").split(".")[0]
     }Z&details=${encodeURIComponent(details)}&location=${encodeURIComponent(
-      location
+      location,
     )}`;
 
     // Detectar si es dispositivo móvil para mejor experiencia
     const isMobile =
       /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
+        navigator.userAgent,
       );
 
     if (isMobile) {
@@ -149,7 +149,7 @@ export class WeddingService {
   openLocation(): void {
     // Usar el enlace específico de Google Maps proporcionado para la ceremonia
     const googleMapsUrl = "https://maps.app.goo.gl/QGAW2nkSZXXEos8b7";
-    window.open(googleMapsUrl, '_blank', 'noopener,noreferrer');
+    window.open(googleMapsUrl, "_blank", "noopener,noreferrer");
   }
 
   showBankDetails(): void {
@@ -181,7 +181,7 @@ CBU/IBAN: [Código bancario]
       "https://script.google.com/macros/s/AKfycbxP81Zt3D4Cb0E5vGI52k4FWe5xFXlOze1SqEDySNyq5qsbElehmEMSF6OQ_0QWvMM1/exec",
 
       fd,
-      { responseType: "text" }
+      { responseType: "text" },
     );
   }
 
@@ -201,7 +201,7 @@ Andro y Diana
 
   openLink(link?: string): void {
     if (link) {
-      window.open(link, '_blank', 'noopener,noreferrer');
+      window.open(link, "_blank", "noopener,noreferrer");
     } else {
       alert("No hay enlace disponible para este regalo.");
     }

@@ -8,13 +8,19 @@ import { EventDetails } from "../../models/wedding.model";
   standalone: true,
   imports: [CommonModule],
   template: `
-    <section class="py-16 text-center" style="background-color: var(--color-warm-white)">
+    <section
+      class="py-16 text-center"
+      style="background-color: var(--color-warm-white)"
+    >
       <div class="max-w-2xl mx-auto px-5">
         <div
           class="w-14 h-14 mx-auto flex items-center justify-center rounded-full"
           style="background: rgba(184, 164, 114, 0.1)"
         >
-          <span class="material-icons text-3xl" style="color: var(--color-gold)">
+          <span
+            class="material-icons text-3xl"
+            style="color: var(--color-gold)"
+          >
             {{ getIcon() }}
           </span>
         </div>
@@ -25,11 +31,18 @@ import { EventDetails } from "../../models/wedding.model";
 
         <div class="section-divider mb-6"></div>
 
-        <p class="text-lg font-light mb-1" style="color: var(--color-text-light)">
+        <p
+          class="text-lg font-light mb-1"
+          style="color: var(--color-text-light)"
+        >
           {{ eventDetails.location }}
         </p>
 
-        <p class="text-sm font-light mb-4" style="color: var(--color-text-light)" *ngIf="showMessage">
+        <p
+          class="text-sm font-light mb-4"
+          style="color: var(--color-text-light)"
+          *ngIf="showMessage"
+        >
           {{ getMessage() }}
         </p>
 
@@ -37,13 +50,20 @@ import { EventDetails } from "../../models/wedding.model";
           <div class="text-3xl font-light" style="color: var(--color-text)">
             {{ eventDetails.date }}
           </div>
-          <div class="w-px h-10" style="background-color: var(--color-gold-light)"></div>
+          <div
+            class="w-px h-10"
+            style="background-color: var(--color-gold-light)"
+          ></div>
           <div class="text-3xl font-light" style="color: var(--color-text)">
             {{ eventDetails.time }}
           </div>
         </div>
 
-        <p class="text-sm font-light mb-8" *ngIf="eventDetails.address" style="color: var(--color-text-light)">
+        <p
+          class="text-sm font-light mb-8"
+          *ngIf="eventDetails.address"
+          style="color: var(--color-text-light)"
+        >
           {{ eventDetails.address }}
         </p>
 

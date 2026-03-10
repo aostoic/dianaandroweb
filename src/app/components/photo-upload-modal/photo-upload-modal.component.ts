@@ -31,7 +31,9 @@ import { CommonModule } from "@angular/common";
               class="w-16 h-16 mx-auto  flex items-center justify-center rounded-full"
               style="background: rgba(184, 164, 114, 0.1)"
             >
-              <span class="material-icons text-2xl" style="color: var(--color-gold)"
+              <span
+                class="material-icons text-2xl"
+                style="color: var(--color-gold)"
                 >photo_camera</span
               >
             </div>
@@ -45,7 +47,7 @@ import { CommonModule } from "@angular/common";
             <div class="flex items-center gap-3">
               <div
                 class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
-              style="background-color: var(--color-gold)"
+                style="background-color: var(--color-gold)"
               >
                 <span class="material-icons text-white text-sm">info</span>
               </div>
