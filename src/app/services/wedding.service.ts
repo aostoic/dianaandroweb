@@ -57,20 +57,20 @@ export class WeddingService {
   getCeremonyDetails(): EventDetails {
     return {
       title: "Ceremonia",
-      location: "Salón de Eventos",
+      location: "Espaço Ondas",
       date: "04 ABR",
       time: "4:00 P.M.",
-      address: "1765 Estr. Dom João Becker, Florianópolis, Brasil",
+      address: "Los Ingleses, Florianópolis, Brasil",
     };
   }
 
   getCelebrationDetails(): EventDetails {
     return {
       title: "Celebración",
-      location: "Salón de Eventos",
+      location: "Espaço Ondas",
       date: "04 ABR",
       time: "5:00 P.M.",
-      address: "1765 Estr. Dom João Becker, Florianópolis, Brasil",
+      address: "Los Ingleses, Florianópolis, Brasil",
     };
   }
 
@@ -119,7 +119,7 @@ export class WeddingService {
 
     const title = "Matrimonio de Andro y Diana";
     const details = "Ceremonia y celebración del matrimonio de Andro y Diana.";
-    const location = "1765 Estr. Dom João Becker, Florianópolis, Brasil";
+    const location = "Espaço Ondas, Los Ingleses, Florianópolis, Brasil";
 
     const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
       title
@@ -148,8 +148,8 @@ export class WeddingService {
 
   openLocation(): void {
     // Usar el enlace específico de Google Maps proporcionado para la ceremonia
-    const googleMapsUrl = "https://maps.app.goo.gl/ycGac3siuXENaSAM9";
-    window.open(googleMapsUrl);
+    const googleMapsUrl = "https://maps.app.goo.gl/QGAW2nkSZXXEos8b7";
+    window.open(googleMapsUrl, '_blank', 'noopener,noreferrer');
   }
 
   showBankDetails(): void {
@@ -201,7 +201,7 @@ Andro y Diana
 
   openLink(link?: string): void {
     if (link) {
-      window.open(link);
+      window.open(link, '_blank', 'noopener,noreferrer');
     } else {
       alert("No hay enlace disponible para este regalo.");
     }

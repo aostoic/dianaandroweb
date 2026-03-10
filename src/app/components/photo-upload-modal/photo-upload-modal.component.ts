@@ -28,9 +28,10 @@ import { CommonModule } from "@angular/common";
 
           <div class="text-center">
             <div
-              class="w-16 h-16 mx-auto  flex items-center justify-center bg-gray-100 rounded-full"
+              class="w-16 h-16 mx-auto  flex items-center justify-center rounded-full"
+              style="background: rgba(184, 164, 114, 0.1)"
             >
-              <span class="material-icons text-primary text-2xl"
+              <span class="material-icons text-2xl" style="color: var(--color-gold)"
                 >photo_camera</span
               >
             </div>
@@ -43,7 +44,8 @@ import { CommonModule } from "@angular/common";
           <div class=" rounded-xl p-4 mb-6">
             <div class="flex items-center gap-3">
               <div
-                class="w-8 h-8 background-primary rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+                class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5"
+              style="background-color: var(--color-gold)"
               >
                 <span class="material-icons text-white text-sm">info</span>
               </div>

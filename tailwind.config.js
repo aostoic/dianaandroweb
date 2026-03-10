@@ -4,15 +4,17 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        caramel: ["Caramel", "cursive"],
         "great-vibes": ["Great Vibes", "cursive"],
         poppins: ["Poppins", "sans-serif"],
+        bdscript: ["BDScript", "sans-serif"],
       },
       colors: {
-        sage: {
-          500: "#8C9B8B",
-          600: "#7a8a7a",
+        gold: {
+          DEFAULT: "#b8a472",
+          light: "#d4c89a",
+          dark: "#9a8a5e",
         },
+        cream: "#faf9f6",
       },
       animation: {
         "bounce-custom": "bounce 2s infinite",

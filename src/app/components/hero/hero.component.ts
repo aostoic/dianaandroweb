@@ -4,6 +4,7 @@ import {
   OnDestroy,
   ElementRef,
   ViewChild,
+  AfterViewInit,
 } from "@angular/core";
 
 @Component({
@@ -18,39 +19,63 @@ import {
         <img
           src="assets/48.jpg"
           alt="Andro y Diana"
-          class="w-full h-full object-cover brightness-75"
+          class="w-full h-full object-cover"
+          fetchpriority="high"
           #heroImage
         />
+        <div class="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/50"></div>
       </div>
 
-      <div class="z-10 pt-20 mb-auto">
-        <h1 class="  mb-4 drop-shadow-lg">Andro & Diana</h1>
-        <div class="mb-8">
+      <div class="z-10 pt-24 mb-auto hero-fade-in">
+        <p class="text-sm tracking-[0.3em] uppercase font-light mb-3 opacity-90">Nos casamos</p>
+        <h1 class="mb-2 drop-shadow-lg text-white" style="color: #fff">Andro & Diana</h1>
+        <p class="text-lg font-light tracking-wider opacity-90">04 . 04 . 2026</p>
+        <div class="mt-8">
           <div class="scroll-arrow"></div>
         </div>
       </div>
 
-      <div class="z-10 pb-12 mt-auto">
-        <h1 class=" mb-4">¡Estás invitado/a!</h1>
-        <p class="text-base md:text-lg font-light max-w-md mx-auto px-4">
-          <!-- Nos encantaría que seas parte de este momento tan especial para
-          nosotros.  -->
-          ¡Falta poco!
+      <div class="z-10 pb-14 mt-auto hero-fade-in-delayed">
+        <h1 class="mb-3 text-white" style="color: #fff">¡Estás invitado/a!</h1>
+        <p class="text-base md:text-lg font-light max-w-md mx-auto px-4 opacity-90">
+          ¡Falta poco para nuestro gran día!
         </p>
       </div>
     </section>
   `,
+  styles: [`
+    .hero-fade-in {
+      animation: heroFadeIn 1.2s ease-out 0.3s both;
+    }
+    .hero-fade-in-delayed {
+      animation: heroFadeIn 1.2s ease-out 0.8s both;
+    }
+    @keyframes heroFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  `]
 })
-export class HeroComponent implements OnInit, OnDestroy {
+export class HeroComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild("heroImage") heroImage!: ElementRef<HTMLImageElement>;
   @ViewChild("heroSection") heroSection!: ElementRef<HTMLElement>;
 
+  private scrollHandler = this.handleScroll.bind(this);
+
   ngOnInit(): void {
-    window.addEventListener("scroll", this.handleScroll.bind(this));
+    window.addEventListener("scroll", this.scrollHandler, { passive: true });
   }
 
+  ngAfterViewInit(): void {}
+
   ngOnDestroy(): void {
-    window.removeEventListener("scroll", this.handleScroll.bind(this));
+    window.removeEventListener("scroll", this.scrollHandler);
   }
 
   private handleScroll(): void {
@@ -60,7 +85,7 @@ export class HeroComponent implements OnInit, OnDestroy {
 
       if (scrolled < heroHeight) {
         this.heroImage.nativeElement.style.transform = `translateY(${
-          scrolled * 0.5
+          scrolled * 0.4
         }px)`;
       }
     }

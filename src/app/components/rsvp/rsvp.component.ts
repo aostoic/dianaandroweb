@@ -9,18 +9,21 @@ import { RSVPForm } from "../../models/wedding.model";
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <section class="py-16 bg-white text-center">
+    <section class="py-16 text-center" style="background-color: var(--color-cream)">
       <div class="max-w-2xl mx-auto px-5">
         <div
-          class="w-16 h-16 mx-auto mb-8 flex items-center justify-center bg-gray-100 rounded-full"
+          class="w-14 h-14 mx-auto flex items-center justify-center rounded-full"
+          style="background: rgba(184, 164, 114, 0.1)"
         >
-          <span class="material-icons text-4xl text-primary">
+          <span class="material-icons text-3xl" style="color: var(--color-gold)">
             check_circle
           </span>
         </div>
-        <h1 style="    margin-top: -30px;">Confirmación</h1>
+        <h1 style="margin-top: -25px;">Confirmación</h1>
 
-        <p class="text-base text-gray-600 mb-12">
+        <div class="section-divider mb-6"></div>
+
+        <p class="text-sm font-light mb-10" style="color: var(--color-text-light)">
           Por favor, confirma tu asistencia
           <br />
           ¡Esperamos que estés allí!
@@ -33,7 +36,8 @@ import { RSVPForm } from "../../models/wedding.model";
         >
           <div class="flex justify-center gap-8 mb-8">
             <label
-              class="flex items-center cursor-pointer text-sm text-gray-600"
+              class="flex items-center cursor-pointer text-sm"
+              style="color: var(--color-text)"
             >
               <input
                 type="radio"
@@ -43,18 +47,21 @@ import { RSVPForm } from "../../models/wedding.model";
                 class="hidden"
               />
               <span
-                class="w-5 h-5 border-2 border-gray-600 rounded-full mr-2 relative flex items-center justify-center"
+                class="w-5 h-5 border-2 rounded-full mr-2 relative flex items-center justify-center transition-colors"
+                [style.border-color]="formData.attendance === 'yes' ? 'var(--color-gold)' : '#ccc'"
               >
                 <span
                   *ngIf="formData.attendance === 'yes'"
-                  class="w-2.5 h-2.5 background-primary rounded-full"
+                  class="w-2.5 h-2.5 rounded-full"
+                  style="background-color: var(--color-gold)"
                 ></span>
               </span>
               Sí, allí estaré!
             </label>
 
             <label
-              class="flex items-center cursor-pointer text-sm text-gray-600"
+              class="flex items-center cursor-pointer text-sm"
+              style="color: var(--color-text)"
             >
               <input
                 type="radio"
@@ -64,11 +71,13 @@ import { RSVPForm } from "../../models/wedding.model";
                 class="hidden"
               />
               <span
-                class="w-5 h-5 border-2 border-gray-600 rounded-full mr-2 relative flex items-center justify-center"
+                class="w-5 h-5 border-2 rounded-full mr-2 relative flex items-center justify-center transition-colors"
+                [style.border-color]="formData.attendance === 'no' ? 'var(--color-gold)' : '#ccc'"
               >
                 <span
                   *ngIf="formData.attendance === 'no'"
-                  class="w-2.5 h-2.5 background-primary rounded-full"
+                  class="w-2.5 h-2.5 rounded-full"
+                  style="background-color: var(--color-gold)"
                 ></span>
               </span>
               No podré asistir
@@ -80,7 +89,7 @@ import { RSVPForm } from "../../models/wedding.model";
             [(ngModel)]="formData.name"
             name="name"
             required
-            class="w-full p-4 mb-4 border-2 border-gray-200 rounded-lg font-inherit text-sm focus:outline-none focus:border-gray-600 transition-colors"
+            class="rsvp-input"
           />
           @if(formData.attendance === 'yes'){
 
@@ -90,13 +99,13 @@ import { RSVPForm } from "../../models/wedding.model";
             [(ngModel)]="formData.phone"
             name="phone"
             required
-            class="w-full p-4 mb-4 border-2 border-gray-200 rounded-lg font-inherit text-sm focus:outline-none focus:border-gray-600 transition-colors"
+            class="rsvp-input"
           />
 
-          <!-- Acompañante -->
           <div class="flex justify-center gap-8">
             <label
-              class="mb-4 flex items-center cursor-pointer text-sm text-gray-600"
+              class="mb-4 flex items-center cursor-pointer text-sm"
+              style="color: var(--color-text)"
             >
               <input
                 (click)="clickChangeCompanion()"
@@ -107,11 +116,13 @@ import { RSVPForm } from "../../models/wedding.model";
                 class="hidden"
               />
               <span
-                class="w-5 h-5 border-2 border-gray-600 rounded-full mr-2 relative flex items-center justify-center"
+                class="w-5 h-5 border-2 rounded-full mr-2 relative flex items-center justify-center transition-colors"
+                [style.border-color]="formData.companion === 'yes' ? 'var(--color-gold)' : '#ccc'"
               >
                 @if(formData.companion === 'yes'){
                 <span
-                  class="w-2.5 h-2.5 background-primary rounded-full"
+                  class="w-2.5 h-2.5 rounded-full"
+                  style="background-color: var(--color-gold)"
                 ></span>
                 }
               </span>
@@ -125,7 +136,7 @@ import { RSVPForm } from "../../models/wedding.model";
             [(ngModel)]="formData.companionName"
             name="companionName"
             required
-            class="w-full p-4 mb-4 border-2 border-gray-200 rounded-lg font-inherit text-sm focus:outline-none focus:border-gray-600 transition-colors"
+            class="rsvp-input"
           />
           }
 
@@ -134,7 +145,7 @@ import { RSVPForm } from "../../models/wedding.model";
             [(ngModel)]="formData.allergies"
             name="allergies"
             rows="3"
-            class="w-full p-4 mb-4 border-2 border-gray-200 rounded-lg font-inherit text-sm resize-y focus:outline-none focus:border-gray-600 transition-colors"
+            class="rsvp-input resize-y"
           ></textarea>
 
           <textarea
@@ -142,7 +153,7 @@ import { RSVPForm } from "../../models/wedding.model";
             [(ngModel)]="formData.song"
             name="song"
             rows="3"
-            class="w-full p-4 mb-4 border-2 border-gray-200 rounded-lg font-inherit text-sm resize-y focus:outline-none focus:border-gray-600 transition-colors"
+            class="rsvp-input resize-y"
           ></textarea>
 
           <textarea
@@ -150,65 +161,55 @@ import { RSVPForm } from "../../models/wedding.model";
             [(ngModel)]="formData.message"
             name="message"
             rows="4"
-            class="w-full p-4 border-2 border-gray-200 rounded-lg font-inherit text-sm resize-y focus:outline-none focus:border-gray-600 transition-colors"
+            class="rsvp-input resize-y"
           ></textarea>
           } @if(!loading){
           <button
             [disabled]="disabledButton()"
             type="submit"
-            class="buttonAction mt-4 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500"
+            class="buttonAction mt-4 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             ENVIAR RESPUESTA
           </button>
           }@else {
           <button
             type="button"
-            class="buttonAction mt-4 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500"
+            class="buttonAction mt-4 disabled:opacity-40"
             disabled
           >
-            Cargando...
+            Enviando...
           </button>
           }
         </form>
-
-        <!-- <div class="text-center">
-          <p class="font-great-vibes text-4xl text-gray-600 mb-2">
-            Te esperamos
-          </p>
-          <p class="font-great-vibes text-3xl text-gray-600">Andro y Diana</p>
-        </div> -->
       </div>
     </section>
 
-    <!-- modal gracias  -->
     @if(viewModal){
     <div
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
+      (click)="closeModal()"
     >
-      <div class="bg-white rounded-lg w-full max-w-2xl mx-4 p-4 relative">
+      <div class="bg-white rounded-2xl w-full max-w-md mx-4 p-6 relative" (click)="$event.stopPropagation()">
         <button
           (click)="closeModal()"
-          class="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+          class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors"
         >
-          ✕
+          <span class="material-icons text-gray-500">close</span>
         </button>
-        <h2 class="text-3xl  mb-4">¡Gracias por tu respuesta!</h2>
-        <p class="text-gray-600">
+        <h2 class="text-3xl mb-2">¡Gracias!</h2>
+        <div class="section-divider mb-4"></div>
+        <p class="text-sm" style="color: var(--color-text-light)">
           Hemos recibido tu confirmación de asistencia.
         </p>
         @if(this.formData.attendance === "yes"){
-        <!-- <p class="text-gray-600">
-          ¡Estamos emocionados de verte en nuestro gran día!
-        </p> -->
         <a class="buttonAction mt-4" href="#dress-code" (click)="closeModal()">
           Revisa el dress code
         </a>
         <a class="buttonAction mt-4" href="#gifts" (click)="closeModal()">
           Ver lista de regalos
         </a>
-
         } @else {
-        <p class="text-gray-600">
+        <p class="text-sm mt-2" style="color: var(--color-text-light)">
           Lamentamos que no puedas asistir. ¡Te extrañaremos!
         </p>
         }
@@ -216,6 +217,28 @@ import { RSVPForm } from "../../models/wedding.model";
     </div>
     }
   `,
+  styles: [`
+    .rsvp-input {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      margin-bottom: 0.75rem;
+      border: 1.5px solid #e5e5e5;
+      border-radius: 0.75rem;
+      font-family: inherit;
+      font-size: 0.875rem;
+      color: var(--color-text);
+      background: #fff;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      outline: none;
+    }
+    .rsvp-input:focus {
+      border-color: var(--color-gold);
+      box-shadow: 0 0 0 3px rgba(184, 164, 114, 0.1);
+    }
+    .rsvp-input::placeholder {
+      color: #bbb;
+    }
+  `]
 })
 export class RSVPComponent {
   // Aquí puedes implementar la lógica para cerrar el modal
