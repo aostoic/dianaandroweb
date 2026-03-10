@@ -99,7 +99,11 @@ import { provideHttpClient } from "@angular/common/http";
                 boda!</span
               >
               <button (click)="closeGiftModal()" class="gift-close-btn">
-                <span class="material-icons" style="font-size: 18px; color: #fff">close</span>
+                <span
+                  class="material-icons"
+                  style="font-size: 18px; color: #fff"
+                  >close</span
+                >
               </button>
             </div>
 
