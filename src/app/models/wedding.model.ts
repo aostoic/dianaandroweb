@@ -29,3 +29,22 @@ export interface GalleryImage {
   alt: string;
   class?: string;
 }
+
+export interface MediaItem {
+  id: string;
+  url: string;
+  uploaderName: string;
+  uploadedAt: string;
+  type: 'photo' | 'video';
+  caption: string;
+  contentType: string;
+  sessionId?: string;
+}
+
+export interface UploadProgress {
+  file: File;
+  progress: number;
+  status: 'pending' | 'uploading' | 'done' | 'error';
+  preview?: string;
+  error?: string;
+}

@@ -34,6 +34,17 @@ import { provideHttpClient } from "@angular/common/http";
         <app-countdown></app-countdown>
       </div>
 
+      <!-- Fotos arriba cuando ya llegó el día (daysLeft <= 0) -->
+      @if (daysLeft <= 0) {
+        <div class="fade-in-section">
+          <app-photos></app-photos>
+        </div>
+
+        <div class="fade-in-section">
+          <app-gallery></app-gallery>
+        </div>
+      }
+
       <div class="fade-in-section">
         <app-event-section
           [eventDetails]="ceremonyDetails"
@@ -53,13 +64,16 @@ import { provideHttpClient } from "@angular/common/http";
         <app-dress-code></app-dress-code>
       </div>
 
-      <div class="fade-in-section">
-        <app-photos></app-photos>
-      </div>
+      <!-- Fotos abajo cuando aún faltan días -->
+      @if (daysLeft > 0) {
+        <div class="fade-in-section">
+          <app-photos></app-photos>
+        </div>
 
-      <div class="fade-in-section">
-        <app-gallery></app-gallery>
-      </div>
+        <div class="fade-in-section">
+          <app-gallery></app-gallery>
+        </div>
+      }
 
       <div class="fade-in-section">
         <app-gifts></app-gifts>
@@ -161,7 +175,7 @@ import { provideHttpClient } from "@angular/common/http";
                       <p class="gift-item-desc">{{ gift.description }}</p>
                       <div class="flex items-center justify-between mt-1">
                         <span class="gift-item-price">{{
-                          gift.price | currency: "COP " : "symbol" : "1.0-0"
+                          gift.price | currency: "CLP " : "symbol" : "1.0-0"
                         }}</span>
                         <button
                           (click)="openGiftLink(gift.link)"
@@ -221,6 +235,14 @@ export class App implements AfterViewInit, OnDestroy {
   private giftModalHandler = () => this.openGiftModal();
 
   giftsList = [
+    {
+      name: "Amor infinito",
+      description:
+        "Un símbolo de nuestro amor eterno, grabado en un collar de plata.",
+      price: 20000,
+      img: "assets/49.jpg",
+      link: "https://mpago.la/164BhV8",
+    },
     {
       name: "Viaje a Marte",
       description: "Una aventura espacial única.",
