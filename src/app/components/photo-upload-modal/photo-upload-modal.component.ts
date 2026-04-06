@@ -22,9 +22,7 @@ import { UploadProgress } from "../../models/wedding.model";
           <div class="relative p-5 pb-3 flex-shrink-0">
             <!-- Drag handle mobile -->
             <div class="flex justify-center mb-2 sm:hidden">
-              <div
-                class="w-10 h-1 rounded-full bg-gray-300"
-              ></div>
+              <div class="w-10 h-1 rounded-full bg-gray-300"></div>
             </div>
             <button
               (click)="close()"
@@ -69,14 +67,18 @@ import { UploadProgress } from "../../models/wedding.model";
                         <div
                           class="w-12 h-12 rounded-lg flex-shrink-0 bg-gray-100 flex items-center justify-center"
                         >
-                          <span class="material-icons text-gray-400">videocam</span>
+                          <span class="material-icons text-gray-400"
+                            >videocam</span
+                          >
                         </div>
                       }
                       <div class="flex-1 min-w-0">
                         <p class="text-xs text-gray-600 truncate">
                           {{ item.file.name }}
                         </p>
-                        <div class="w-full bg-gray-100 rounded-full h-1.5 mt-1.5">
+                        <div
+                          class="w-full bg-gray-100 rounded-full h-1.5 mt-1.5"
+                        >
                           <div
                             class="h-1.5 rounded-full transition-all duration-300"
                             [style.width.%]="item.progress"
@@ -91,12 +93,14 @@ import { UploadProgress } from "../../models/wedding.model";
                         </div>
                         <div class="flex items-center justify-between mt-1">
                           <span class="text-[10px] text-gray-400">
-                            @if (item.status === 'uploading') {
+                            @if (item.status === "uploading") {
                               {{ item.progress }}%
-                            } @else if (item.status === 'done') {
+                            } @else if (item.status === "done") {
                               <span class="text-green-500">✓ Subido</span>
-                            } @else if (item.status === 'error') {
-                              <span class="text-red-500">{{ item.error || 'Error' }}</span>
+                            } @else if (item.status === "error") {
+                              <span class="text-red-500">{{
+                                item.error || "Error"
+                              }}</span>
                             } @else {
                               En espera...
                             }
@@ -188,7 +192,7 @@ import { UploadProgress } from "../../models/wedding.model";
                   Toca para seleccionar o arrastra aquí
                 </p>
                 <p class="text-[10px] text-gray-400">
-                  Fotos (JPG, PNG, WEBP) y Videos (MP4, MOV) · Máx 100MB
+                  Fotos (JPG, PNG, HEIC) y Videos (MP4, MOV) · Máx 400MB
                 </p>
                 <input
                   #fileInput
@@ -203,14 +207,12 @@ import { UploadProgress } from "../../models/wedding.model";
               <!-- Selected files preview -->
               @if (selectedFiles.length > 0) {
                 <div class="mb-4">
-                  <div
-                    class="flex items-center justify-between mb-2"
-                  >
-                    <span class="text-xs font-medium text-gray-600"
-                      >{{ selectedFiles.length }}
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs font-medium text-gray-600">
+                      {{ selectedFiles.length }}
                       {{ selectedFiles.length === 1 ? "archivo" : "archivos" }}
-                      seleccionados</span
-                    >
+                      seleccionados
+                    </span>
                     <button
                       (click)="clearFiles()"
                       class="text-xs text-red-400 hover:text-red-500"
@@ -305,6 +307,8 @@ export class PhotoUploadModalComponent {
   uploadQueue: UploadProgress[] = [];
   allDone = false;
 
+  private readonly MAX_FILE_SIZE = 400 * 1024 * 1024; // 400MB
+
   constructor(private mediaService: MediaService) {}
 
   get canUpload(): boolean {
@@ -349,7 +353,7 @@ export class PhotoUploadModalComponent {
     const validFiles = files.filter((f) => {
       const isMedia =
         f.type.startsWith("image/") || f.type.startsWith("video/");
-      const validSize = f.size <= 100 * 1024 * 1024;
+      const validSize = f.size <= this.MAX_FILE_SIZE;
       return isMedia && validSize;
     });
 

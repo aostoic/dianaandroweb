@@ -35,7 +35,7 @@ export interface MediaItem {
   url: string;
   uploaderName: string;
   uploadedAt: string;
-  type: 'photo' | 'video';
+  type: "photo" | "video";
   caption: string;
   contentType: string;
   sessionId?: string;
@@ -44,7 +44,7 @@ export interface MediaItem {
 export interface UploadProgress {
   file: File;
   progress: number;
-  status: 'pending' | 'uploading' | 'done' | 'error';
+  status: "pending" | "uploading" | "done" | "error";
   preview?: string;
   error?: string;
 }

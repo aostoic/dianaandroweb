@@ -45,10 +45,9 @@ import { MediaItem } from "../../models/wedding.model";
             <span class="material-icons text-lg">photo_library</span>
             VER GALERÍA
             @if (mediaCount > 0) {
-              <span
-                class="ml-1 text-xs bg-white/20 px-2 py-0.5 rounded-full"
-                >{{ mediaCount }}</span
-              >
+              <span class="ml-1 text-xs bg-white/20 px-2 py-0.5 rounded-full">{{
+                mediaCount
+              }}</span>
             }
           </button>
         </div>
@@ -68,14 +67,17 @@ import { MediaItem } from "../../models/wedding.model";
         class="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex flex-col gallery-overlay-enter"
       >
         <!-- Gallery Header -->
-        <div
-          class="flex items-center justify-between px-4 py-3 flex-shrink-0"
-        >
+        <div class="flex items-center justify-between px-4 py-3 flex-shrink-0">
           <div class="flex items-center gap-3">
-            <h3 class="text-white text-lg" style="margin: 0; font-size: 1.8rem !important">
+            <h3
+              class="text-white text-lg"
+              style="margin: 0; font-size: 1.8rem !important"
+            >
               Galería
             </h3>
-            <span class="text-white/50 text-xs">{{ mediaItems.length }} archivos</span>
+            <span class="text-white/50 text-xs"
+              >{{ mediaItems.length }} archivos</span
+            >
           </div>
           <div class="flex items-center gap-2">
             <!-- Filter buttons -->
@@ -85,7 +87,9 @@ import { MediaItem } from "../../models/wedding.model";
                 class="px-3 py-1 rounded-full text-[11px] font-medium transition-all"
                 [class.bg-white]="filterType === 'all'"
                 [class.text-gray-700]="filterType === 'all'"
-                [style.color]="filterType !== 'all' ? 'rgba(255,255,255,0.7)' : null"
+                [style.color]="
+                  filterType !== 'all' ? 'rgba(255,255,255,0.7)' : null
+                "
               >
                 Todo
               </button>
@@ -94,7 +98,9 @@ import { MediaItem } from "../../models/wedding.model";
                 class="px-3 py-1 rounded-full text-[11px] font-medium transition-all"
                 [class.bg-white]="filterType === 'photo'"
                 [class.text-gray-700]="filterType === 'photo'"
-                [style.color]="filterType !== 'photo' ? 'rgba(255,255,255,0.7)' : null"
+                [style.color]="
+                  filterType !== 'photo' ? 'rgba(255,255,255,0.7)' : null
+                "
               >
                 Fotos
               </button>
@@ -103,7 +109,9 @@ import { MediaItem } from "../../models/wedding.model";
                 class="px-3 py-1 rounded-full text-[11px] font-medium transition-all"
                 [class.bg-white]="filterType === 'video'"
                 [class.text-gray-700]="filterType === 'video'"
-                [style.color]="filterType !== 'video' ? 'rgba(255,255,255,0.7)' : null"
+                [style.color]="
+                  filterType !== 'video' ? 'rgba(255,255,255,0.7)' : null
+                "
               >
                 Videos
               </button>
@@ -133,7 +141,7 @@ import { MediaItem } from "../../models/wedding.model";
                 @if (mediaItems.length === 0) {
                   Aún no hay fotos ni videos
                 } @else {
-                  No hay {{ filterType === 'photo' ? 'fotos' : 'videos' }}
+                  No hay {{ filterType === "photo" ? "fotos" : "videos" }}
                 }
               </p>
               <button
@@ -150,7 +158,7 @@ import { MediaItem } from "../../models/wedding.model";
                   class="relative aspect-square cursor-pointer group overflow-hidden rounded-lg"
                   (click)="openLightbox(item)"
                 >
-                  @if (item.type === 'photo') {
+                  @if (item.type === "photo") {
                     <img
                       [src]="item.url"
                       class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
@@ -184,7 +192,7 @@ import { MediaItem } from "../../models/wedding.model";
                       {{ item.uploaderName }}
                     </p>
                   </div>
-                  @if (item.type === 'video') {
+                  @if (item.type === "video") {
                     <span
                       class="absolute top-1.5 right-1.5 material-icons text-white text-sm drop-shadow"
                       >videocam</span
@@ -196,7 +204,9 @@ import { MediaItem } from "../../models/wedding.model";
                       class="absolute top-1.5 left-1.5 w-6 h-6 bg-red-500/80 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
                       title="Eliminar"
                     >
-                      <span class="material-icons" style="font-size: 14px">delete</span>
+                      <span class="material-icons" style="font-size: 14px"
+                        >delete</span
+                      >
                     </button>
                   }
                 </div>
@@ -251,7 +261,7 @@ import { MediaItem } from "../../models/wedding.model";
           class="max-w-[95vw] max-h-[85vh] flex items-center justify-center"
           (click)="$event.stopPropagation()"
         >
-          @if (lightboxItem.type === 'photo') {
+          @if (lightboxItem.type === "photo") {
             <img
               [src]="lightboxItem.url"
               class="max-w-full max-h-[85vh] object-contain rounded-lg"
@@ -288,7 +298,9 @@ import { MediaItem } from "../../models/wedding.model";
                 (click)="deleteMedia(lightboxItem); $event.stopPropagation()"
                 class="mt-2 inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-red-500/80 hover:bg-red-600 text-white transition-colors"
               >
-                <span class="material-icons" style="font-size: 14px">delete</span>
+                <span class="material-icons" style="font-size: 14px"
+                  >delete</span
+                >
                 Eliminar
               </button>
             }
@@ -435,11 +447,11 @@ export class PhotosComponent implements OnInit, OnDestroy {
 
   isOwn(item: MediaItem): boolean {
     const sid = this.mediaService.getSessionId();
-    return sid === 'ADMIN' || (!!item.sessionId && item.sessionId === sid);
+    return sid === "ADMIN" || (!!item.sessionId && item.sessionId === sid);
   }
 
   deleteMedia(item: MediaItem): void {
-    if (!confirm('¿Eliminar este archivo?')) return;
+    if (!confirm("¿Eliminar este archivo?")) return;
 
     this.mediaService.deleteFile(item.id).subscribe({
       next: () => {
@@ -450,7 +462,7 @@ export class PhotosComponent implements OnInit, OnDestroy {
         }
       },
       error: () => {
-        alert('No se pudo eliminar el archivo.');
+        alert("No se pudo eliminar el archivo.");
       },
     });
   }

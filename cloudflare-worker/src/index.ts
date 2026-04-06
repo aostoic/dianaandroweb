@@ -14,7 +14,7 @@ interface MediaItem {
   sessionId?: string;
 }
 
-const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
+const MAX_FILE_SIZE = 400 * 1024 * 1024; // 400 MB
 const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
   "image/png",
@@ -102,7 +102,8 @@ async function handleUpload(
   }
 
   const id = `${Date.now()}-${crypto.randomUUID()}`;
-  const ext = file.name.split(".").pop()?.toLowerCase() || (isImage ? "jpg" : "mp4");
+  const ext =
+    file.name.split(".").pop()?.toLowerCase() || (isImage ? "jpg" : "mp4");
   const safeExt = ext.replace(/[^a-z0-9]/g, "").slice(0, 10);
   const key = `${id}.${safeExt}`;
 
@@ -198,7 +199,7 @@ async function handleDelete(
 ): Promise<Response> {
   let body: { sessionId?: string };
   try {
-    body = await request.json() as { sessionId?: string };
+    body = (await request.json()) as { sessionId?: string };
   } catch {
     return jsonResponse({ error: "Invalid request" }, 400, cors);
   }
@@ -243,7 +244,10 @@ export default {
       if (url.pathname === "/api/upload" && request.method === "POST") {
         return handleUpload(request, env, cors);
       }
-      if (url.pathname.startsWith("/api/media/") && request.method === "DELETE") {
+      if (
+        url.pathname.startsWith("/api/media/") &&
+        request.method === "DELETE"
+      ) {
         const key = decodeURIComponent(url.pathname.slice(11));
         if (key.includes("..") || key.startsWith("/") || !key) {
           return new Response("Bad Request", { status: 400, headers: cors });

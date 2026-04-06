@@ -78,9 +78,13 @@ export class MediaService {
   }
 
   deleteFile(fileId: string): Observable<{ ok: boolean }> {
-    return this.http.request<{ ok: boolean }>("DELETE", `${API_BASE}/api/media/${encodeURIComponent(fileId)}`, {
-      body: { sessionId: this.sessionId },
-    });
+    return this.http.request<{ ok: boolean }>(
+      "DELETE",
+      `${API_BASE}/api/media/${encodeURIComponent(fileId)}`,
+      {
+        body: { sessionId: this.sessionId },
+      },
+    );
   }
 
   getFileUrl(id: string): string {
