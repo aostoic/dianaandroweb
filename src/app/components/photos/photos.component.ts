@@ -1,4 +1,4 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { PhotoUploadModalComponent } from "../photo-upload-modal/photo-upload-modal.component";
 import { MediaService } from "../../services/media.service";
@@ -347,7 +347,7 @@ import { MediaItem } from "../../models/wedding.model";
     `,
   ],
 })
-export class PhotosComponent implements OnInit {
+export class PhotosComponent implements OnInit, OnDestroy {
   showUploadModal = false;
   showGallery = false;
   loading = false;
@@ -357,7 +357,15 @@ export class PhotosComponent implements OnInit {
   filterType: "all" | "photo" | "video" = "all";
   lightboxItem: MediaItem | null = null;
 
-  constructor(private mediaService: MediaService) {}
+  private openUploadHandler = () => this.openUploadModal();
+
+  constructor(private mediaService: MediaService) {
+    window.addEventListener("open-photo-upload", this.openUploadHandler);
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener("open-photo-upload", this.openUploadHandler);
+  }
 
   ngOnInit(): void {
     this.loadMediaCount();

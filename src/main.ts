@@ -348,6 +348,9 @@ export class App implements AfterViewInit, OnDestroy {
     this.giftModalAnimating = false;
     setTimeout(() => {
       this.showGiftModal = false;
+      if (this.daysLeft <= 0) {
+        window.dispatchEvent(new CustomEvent("open-photo-upload"));
+      }
     }, 350);
   }
 
