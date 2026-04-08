@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, HostListener } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { PhotoUploadModalComponent } from "../photo-upload-modal/photo-upload-modal.component";
 import { MediaService } from "../../services/media.service";
@@ -155,16 +155,31 @@ import { MediaItem } from "../../models/wedding.model";
             <div class="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
               @for (item of filteredItems; track item.id) {
                 <div
-                  class="relative aspect-square cursor-pointer group overflow-hidden rounded-lg"
+                  class="relative aspect-square cursor-pointer group overflow-hidden rounded-lg bg-white/5"
                   (click)="openLightbox(item)"
                 >
                   @if (item.type === "photo") {
-                    <img
-                      [src]="item.url"
-                      class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      loading="lazy"
-                      alt=""
-                    />
+                    <div class="w-full h-full relative">
+                      <!-- Skeleton placeholder -->
+                      @if (!loadedImages[item.id]) {
+                        <div class="absolute inset-0 skeleton-shimmer"></div>
+                      }
+                      <img
+                        [src]="item.url"
+                        class="w-full h-full object-cover transition-all duration-300 group-hover:scale-105"
+                        [class.opacity-0]="!loadedImages[item.id]"
+                        [class.opacity-100]="loadedImages[item.id]"
+                        loading="lazy"
+                        alt=""
+                        (load)="onImageLoaded(item.id)"
+                        (error)="onImageError(item.id)"
+                      />
+                      @if (errorImages[item.id]) {
+                        <div class="absolute inset-0 flex items-center justify-center bg-white/5">
+                          <span class="material-icons text-white/30 text-2xl">broken_image</span>
+                        </div>
+                      }
+                    </div>
                   } @else {
                     <div
                       class="w-full h-full bg-gray-800 flex items-center justify-center relative"
@@ -201,7 +216,7 @@ import { MediaItem } from "../../models/wedding.model";
                   @if (isOwn(item)) {
                     <button
                       (click)="deleteMedia(item); $event.stopPropagation()"
-                      class="absolute top-1.5 left-1.5 w-6 h-6 bg-red-500/80 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                      class="absolute top-1.5 left-1.5 w-6 h-6 bg-red-500/80 hover:bg-red-600 text-white rounded-full flex items-center justify-center sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10"
                       title="Eliminar"
                     >
                       <span class="material-icons" style="font-size: 14px"
@@ -229,8 +244,12 @@ import { MediaItem } from "../../models/wedding.model";
     <!-- Lightbox -->
     @if (lightboxItem) {
       <div
-        class="fixed inset-0 z-[70] bg-black flex items-center justify-center lightbox-enter"
+        class="fixed inset-0 z-[70] bg-black flex items-center justify-center"
+        [class.lightbox-enter]="!lightboxClosing"
+        [class.lightbox-exit]="lightboxClosing"
         (click)="closeLightbox()"
+        (touchstart)="onTouchStart($event)"
+        (touchend)="onTouchEnd($event)"
       >
         <!-- Close button -->
         <button
@@ -254,6 +273,13 @@ import { MediaItem } from "../../models/wedding.model";
           >
             <span class="material-icons text-white">chevron_right</span>
           </button>
+        }
+
+        <!-- Counter -->
+        @if (filteredItems.length > 1) {
+          <div class="absolute top-4 left-4 z-10 text-white/50 text-xs">
+            {{ currentLightboxIndex + 1 }} / {{ filteredItems.length }}
+          </div>
         }
 
         <!-- Media content -->
@@ -293,17 +319,29 @@ import { MediaItem } from "../../models/wedding.model";
             <p class="text-white/40 text-[10px] mt-1">
               {{ formatDate(lightboxItem.uploadedAt) }}
             </p>
-            @if (isOwn(lightboxItem)) {
-              <button
-                (click)="deleteMedia(lightboxItem); $event.stopPropagation()"
-                class="mt-2 inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-red-500/80 hover:bg-red-600 text-white transition-colors"
+            <div class="flex items-center justify-center gap-2 mt-2">
+              <!-- Download button -->
+              <a
+                [href]="lightboxItem.url"
+                download
+                (click)="$event.stopPropagation()"
+                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 hover:bg-white/20 text-white transition-colors"
               >
-                <span class="material-icons" style="font-size: 14px"
-                  >delete</span
+                <span class="material-icons" style="font-size: 14px">download</span>
+                Descargar
+              </a>
+              @if (isOwn(lightboxItem)) {
+                <button
+                  (click)="deleteMedia(lightboxItem); $event.stopPropagation()"
+                  class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-red-500/80 hover:bg-red-600 text-white transition-colors"
                 >
-                Eliminar
-              </button>
-            }
+                  <span class="material-icons" style="font-size: 14px"
+                    >delete</span
+                  >
+                  Eliminar
+                </button>
+              }
+            </div>
           </div>
         </div>
       </div>
@@ -335,6 +373,26 @@ import { MediaItem } from "../../models/wedding.model";
       }
       .lightbox-enter {
         animation: lightboxEnter 0.2s ease-out;
+      }
+      @keyframes lightboxExit {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+      .lightbox-exit {
+        animation: lightboxExit 0.2s ease-out forwards;
+      }
+      .skeleton-shimmer {
+        background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+      @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
       }
       .media-spinner {
         width: 32px;
@@ -368,6 +426,15 @@ export class PhotosComponent implements OnInit, OnDestroy {
   mediaCount = 0;
   filterType: "all" | "photo" | "video" = "all";
   lightboxItem: MediaItem | null = null;
+  lightboxClosing = false;
+
+  // Image loading states
+  loadedImages: Record<string, boolean> = {};
+  errorImages: Record<string, boolean> = {};
+
+  // Touch/swipe tracking
+  private touchStartX = 0;
+  private touchStartY = 0;
 
   private openUploadHandler = () => this.openUploadModal();
 
@@ -377,15 +444,62 @@ export class PhotosComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     window.removeEventListener("open-photo-upload", this.openUploadHandler);
+    this.setBodyScroll(true);
   }
 
   ngOnInit(): void {
     this.loadMediaCount();
   }
 
+  @HostListener("document:keydown", ["$event"])
+  onKeydown(event: KeyboardEvent): void {
+    if (this.lightboxItem && !this.lightboxClosing) {
+      if (event.key === "Escape") {
+        this.closeLightbox();
+      } else if (event.key === "ArrowLeft") {
+        this.navigateLightbox(-1);
+      } else if (event.key === "ArrowRight") {
+        this.navigateLightbox(1);
+      }
+    } else if (this.showGallery && event.key === "Escape") {
+      this.closeGallery();
+    }
+  }
+
   get filteredItems(): MediaItem[] {
     if (this.filterType === "all") return this.mediaItems;
     return this.mediaItems.filter((m) => m.type === this.filterType);
+  }
+
+  get currentLightboxIndex(): number {
+    if (!this.lightboxItem) return 0;
+    const idx = this.filteredItems.findIndex((m) => m.id === this.lightboxItem!.id);
+    return idx >= 0 ? idx : 0;
+  }
+
+  onImageLoaded(id: string): void {
+    this.loadedImages[id] = true;
+  }
+
+  onImageError(id: string): void {
+    this.loadedImages[id] = true;
+    this.errorImages[id] = true;
+  }
+
+  onTouchStart(event: TouchEvent): void {
+    this.touchStartX = event.changedTouches[0].clientX;
+    this.touchStartY = event.changedTouches[0].clientY;
+  }
+
+  onTouchEnd(event: TouchEvent): void {
+    const dx = event.changedTouches[0].clientX - this.touchStartX;
+    const dy = event.changedTouches[0].clientY - this.touchStartY;
+    // Only swipe if horizontal movement > 50px and > vertical movement
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+      event.preventDefault();
+      event.stopPropagation();
+      this.navigateLightbox(dx < 0 ? 1 : -1);
+    }
   }
 
   openUploadModal(): void {
@@ -394,12 +508,14 @@ export class PhotosComponent implements OnInit, OnDestroy {
 
   openGallery(): void {
     this.showGallery = true;
+    this.setBodyScroll(false);
     this.loadMedia();
   }
 
   closeGallery(): void {
     this.showGallery = false;
     this.lightboxItem = null;
+    this.setBodyScroll(true);
   }
 
   refreshMedia(): void {
@@ -409,9 +525,13 @@ export class PhotosComponent implements OnInit, OnDestroy {
     }
   }
 
+  private setBodyScroll(enabled: boolean): void {
+    document.body.style.overflow = enabled ? "" : "hidden";
+  }
+
   private loadMediaCount(): void {
-    this.mediaService.getMedia().subscribe((items) => {
-      this.mediaCount = items.length;
+    this.mediaService.getMediaCount().subscribe((count) => {
+      this.mediaCount = count;
     });
   }
 
@@ -430,11 +550,21 @@ export class PhotosComponent implements OnInit, OnDestroy {
   }
 
   openLightbox(item: MediaItem): void {
+    this.lightboxClosing = false;
     this.lightboxItem = item;
+    this.setBodyScroll(false);
   }
 
   closeLightbox(): void {
-    this.lightboxItem = null;
+    if (!this.lightboxItem || this.lightboxClosing) return;
+    this.lightboxClosing = true;
+    setTimeout(() => {
+      this.lightboxItem = null;
+      this.lightboxClosing = false;
+      if (!this.showGallery) {
+        this.setBodyScroll(true);
+      }
+    }, 200);
   }
 
   navigateLightbox(direction: number): void {

@@ -13,11 +13,12 @@ export class MediaService {
   private sessionId: string;
 
   constructor(private http: HttpClient) {
-    let stored = sessionStorage.getItem(SESSION_KEY);
+    // Migrate from sessionStorage to localStorage if needed
+    let stored = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
     if (!stored) {
       stored = crypto.randomUUID();
-      sessionStorage.setItem(SESSION_KEY, stored);
     }
+    localStorage.setItem(SESSION_KEY, stored);
     this.sessionId = stored;
   }
 
@@ -84,6 +85,13 @@ export class MediaService {
       {
         body: { sessionId: this.sessionId },
       },
+    );
+  }
+
+  getMediaCount(): Observable<number> {
+    return this.http.get<{ count: number }>(`${API_BASE}/api/media/count`).pipe(
+      map((res) => res.count),
+      catchError(() => of(0)),
     );
   }
 

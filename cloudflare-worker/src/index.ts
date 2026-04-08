@@ -83,7 +83,7 @@ async function handleUpload(
 
   if (file.size > MAX_FILE_SIZE) {
     return jsonResponse(
-      { error: "Archivo demasiado grande (máx 100MB)" },
+      { error: "Archivo demasiado grande (máx 400MB)" },
       400,
       cors,
     );
@@ -131,6 +131,20 @@ async function handleUpload(
   };
 
   return jsonResponse(item, 201, cors);
+}
+
+async function handleMediaCount(
+  env: Env,
+  cors: Record<string, string>,
+): Promise<Response> {
+  let count = 0;
+  let cursor: string | undefined;
+  do {
+    const listed = await env.WEDDING_MEDIA.list({ cursor, limit: 1000 });
+    count += listed.objects.length;
+    cursor = listed.truncated ? listed.cursor : undefined;
+  } while (cursor);
+  return jsonResponse({ count }, 200, cors);
 }
 
 async function handleListMedia(
@@ -238,6 +252,9 @@ export default {
     }
 
     try {
+      if (url.pathname === "/api/media/count" && request.method === "GET") {
+        return handleMediaCount(env, cors);
+      }
       if (url.pathname === "/api/media" && request.method === "GET") {
         return handleListMedia(env, cors);
       }

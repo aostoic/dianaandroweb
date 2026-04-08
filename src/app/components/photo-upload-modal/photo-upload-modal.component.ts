@@ -172,6 +172,17 @@ import { UploadProgress } from "../../models/wedding.model";
                 />
               </div>
 
+              <!-- Rejected files warning -->
+              @if (rejectedMessage) {
+                <div class="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2 rejected-toast">
+                  <span class="material-icons text-amber-500" style="font-size: 18px">warning</span>
+                  <p class="text-xs text-amber-700 flex-1">{{ rejectedMessage }}</p>
+                  <button (click)="rejectedMessage = ''" class="text-amber-400 hover:text-amber-600">
+                    <span class="material-icons" style="font-size: 16px">close</span>
+                  </button>
+                </div>
+              }
+
               <!-- File drop zone -->
               <div
                 class="border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200 mb-4"
@@ -233,20 +244,34 @@ import { UploadProgress } from "../../models/wedding.model";
                             alt="preview"
                           />
                         } @else {
-                          <div
-                            class="w-full aspect-square bg-gray-100 rounded-lg flex flex-col items-center justify-center"
-                          >
-                            <span class="material-icons text-gray-400 text-xl"
+                          @if (preview.url) {
+                            <img
+                              [src]="preview.url"
+                              class="w-full aspect-square object-cover rounded-lg"
+                              alt="video preview"
+                            />
+                            <span class="absolute bottom-1 left-1 material-icons text-white text-sm drop-shadow"
                               >videocam</span
                             >
-                            <span class="text-[9px] text-gray-400 mt-0.5"
-                              >Video</span
+                          } @else {
+                            <div
+                              class="w-full aspect-square bg-gray-100 rounded-lg flex flex-col items-center justify-center"
                             >
-                          </div>
+                              <span class="material-icons text-gray-400 text-xl"
+                                >videocam</span
+                              >
+                              <span class="text-[9px] text-gray-400 mt-0.5"
+                                >Video</span
+                              >
+                            </div>
+                          }
                         }
+                        <span class="absolute bottom-0.5 right-0.5 text-[8px] text-white bg-black/50 px-1 rounded">
+                          {{ formatFileSize(selectedFiles[$index].size || 0) }}
+                        </span>
                         <button
                           (click)="removeFile($index)"
-                          class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                          class="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
                         >
                           ✕
                         </button>
@@ -289,6 +314,13 @@ import { UploadProgress } from "../../models/wedding.model";
       .upload-modal-enter {
         animation: uploadModalEnter 0.35s cubic-bezier(0.22, 1, 0.36, 1);
       }
+      @keyframes rejectedToastIn {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .rejected-toast {
+        animation: rejectedToastIn 0.3s ease-out;
+      }
     `,
   ],
 })
@@ -302,12 +334,16 @@ export class PhotoUploadModalComponent {
   selectedFiles: File[] = [];
   filePreviews: { url: string; name: string; type: "photo" | "video" }[] = [];
   isDragging = false;
+  rejectedMessage = "";
 
   isUploading = false;
   uploadQueue: UploadProgress[] = [];
   allDone = false;
 
   private readonly MAX_FILE_SIZE = 400 * 1024 * 1024; // 400MB
+  private readonly COMPRESS_THRESHOLD = 4 * 1024 * 1024; // 4MB
+  private readonly MAX_DIMENSION = 2400;
+  private rejectedTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private mediaService: MediaService) {}
 
@@ -350,23 +386,115 @@ export class PhotoUploadModalComponent {
   }
 
   private addFiles(files: File[]): void {
-    const validFiles = files.filter((f) => {
-      const isMedia =
-        f.type.startsWith("image/") || f.type.startsWith("video/");
-      const validSize = f.size <= this.MAX_FILE_SIZE;
-      return isMedia && validSize;
-    });
+    const rejected: string[] = [];
+    const validFiles: File[] = [];
 
-    this.selectedFiles.push(...validFiles);
+    for (const f of files) {
+      const isMedia = f.type.startsWith("image/") || f.type.startsWith("video/");
+      const validSize = f.size <= this.MAX_FILE_SIZE;
+      if (!isMedia) {
+        rejected.push(`"${f.name}" no es foto ni video`);
+      } else if (!validSize) {
+        rejected.push(`"${f.name}" excede 400MB`);
+      } else {
+        validFiles.push(f);
+      }
+    }
+
+    if (rejected.length > 0) {
+      this.rejectedMessage = rejected.length === 1
+        ? rejected[0]
+        : `${rejected.length} archivos rechazados: ${rejected.slice(0, 3).join(", ")}${rejected.length > 3 ? "..." : ""}`;
+      if (this.rejectedTimer) clearTimeout(this.rejectedTimer);
+      this.rejectedTimer = setTimeout(() => { this.rejectedMessage = ""; }, 4000);
+    }
 
     for (const file of validFiles) {
       if (file.type.startsWith("image/")) {
         const url = URL.createObjectURL(file);
         this.filePreviews.push({ url, name: file.name, type: "photo" });
+        this.selectedFiles.push(file);
+        // Compress large images in background
+        if (file.type !== "image/gif" && file.size > this.COMPRESS_THRESHOLD) {
+          this.compressImage(file, this.selectedFiles.length - 1);
+        }
       } else {
+        // Video: generate thumbnail
+        this.selectedFiles.push(file);
+        const idx = this.selectedFiles.length - 1;
         this.filePreviews.push({ url: "", name: file.name, type: "video" });
+        this.generateVideoThumbnail(file, idx);
       }
     }
+  }
+
+  private compressImage(file: File, index: number): void {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      const maxDim = this.MAX_DIMENSION;
+      if (width <= maxDim && height <= maxDim && file.size <= this.COMPRESS_THRESHOLD) {
+        return; // No compression needed
+      }
+      if (width > maxDim || height > maxDim) {
+        const ratio = Math.min(maxDim / width, maxDim / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          if (blob && blob.size < file.size) {
+            const compressed = new File([blob], file.name, { type: "image/jpeg", lastModified: Date.now() });
+            this.selectedFiles[index] = compressed;
+          }
+        },
+        "image/jpeg",
+        0.85,
+      );
+    };
+    img.onerror = () => URL.revokeObjectURL(url);
+    img.src = url;
+  }
+
+  private generateVideoThumbnail(file: File, index: number): void {
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.muted = true;
+    video.playsInline = true;
+    const url = URL.createObjectURL(file);
+    video.src = url;
+    video.onloadeddata = () => {
+      video.currentTime = Math.min(1, video.duration / 2);
+    };
+    video.onseeked = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(video, 0, 0);
+        const thumbUrl = canvas.toDataURL("image/jpeg", 0.7);
+        if (this.filePreviews[index]) {
+          this.filePreviews[index].url = thumbUrl;
+        }
+      }
+      URL.revokeObjectURL(url);
+    };
+    video.onerror = () => URL.revokeObjectURL(url);
+  }
+
+  formatFileSize(bytes: number): string {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   }
 
   removeFile(index: number): void {
@@ -442,5 +570,10 @@ export class PhotoUploadModalComponent {
     this.uploadQueue = [];
     this.allDone = false;
     this.caption = "";
+    this.rejectedMessage = "";
+    if (this.rejectedTimer) {
+      clearTimeout(this.rejectedTimer);
+      this.rejectedTimer = null;
+    }
   }
 }
