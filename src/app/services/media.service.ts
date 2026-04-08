@@ -14,7 +14,8 @@ export class MediaService {
 
   constructor(private http: HttpClient) {
     // Migrate from sessionStorage to localStorage if needed
-    let stored = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
+    let stored =
+      localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
     if (!stored) {
       stored = crypto.randomUUID();
     }

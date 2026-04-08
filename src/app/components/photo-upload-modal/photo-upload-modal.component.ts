@@ -174,11 +174,24 @@ import { UploadProgress } from "../../models/wedding.model";
 
               <!-- Rejected files warning -->
               @if (rejectedMessage) {
-                <div class="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2 rejected-toast">
-                  <span class="material-icons text-amber-500" style="font-size: 18px">warning</span>
-                  <p class="text-xs text-amber-700 flex-1">{{ rejectedMessage }}</p>
-                  <button (click)="rejectedMessage = ''" class="text-amber-400 hover:text-amber-600">
-                    <span class="material-icons" style="font-size: 16px">close</span>
+                <div
+                  class="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2 rejected-toast"
+                >
+                  <span
+                    class="material-icons text-amber-500"
+                    style="font-size: 18px"
+                    >warning</span
+                  >
+                  <p class="text-xs text-amber-700 flex-1">
+                    {{ rejectedMessage }}
+                  </p>
+                  <button
+                    (click)="rejectedMessage = ''"
+                    class="text-amber-400 hover:text-amber-600"
+                  >
+                    <span class="material-icons" style="font-size: 16px"
+                      >close</span
+                    >
                   </button>
                 </div>
               }
@@ -250,7 +263,8 @@ import { UploadProgress } from "../../models/wedding.model";
                               class="w-full aspect-square object-cover rounded-lg"
                               alt="video preview"
                             />
-                            <span class="absolute bottom-1 left-1 material-icons text-white text-sm drop-shadow"
+                            <span
+                              class="absolute bottom-1 left-1 material-icons text-white text-sm drop-shadow"
                               >videocam</span
                             >
                           } @else {
@@ -266,7 +280,9 @@ import { UploadProgress } from "../../models/wedding.model";
                             </div>
                           }
                         }
-                        <span class="absolute bottom-0.5 right-0.5 text-[8px] text-white bg-black/50 px-1 rounded">
+                        <span
+                          class="absolute bottom-0.5 right-0.5 text-[8px] text-white bg-black/50 px-1 rounded"
+                        >
                           {{ formatFileSize(selectedFiles[$index].size || 0) }}
                         </span>
                         <button
@@ -315,8 +331,14 @@ import { UploadProgress } from "../../models/wedding.model";
         animation: uploadModalEnter 0.35s cubic-bezier(0.22, 1, 0.36, 1);
       }
       @keyframes rejectedToastIn {
-        from { opacity: 0; transform: translateY(-8px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
       .rejected-toast {
         animation: rejectedToastIn 0.3s ease-out;
@@ -390,7 +412,8 @@ export class PhotoUploadModalComponent {
     const validFiles: File[] = [];
 
     for (const f of files) {
-      const isMedia = f.type.startsWith("image/") || f.type.startsWith("video/");
+      const isMedia =
+        f.type.startsWith("image/") || f.type.startsWith("video/");
       const validSize = f.size <= this.MAX_FILE_SIZE;
       if (!isMedia) {
         rejected.push(`"${f.name}" no es foto ni video`);
@@ -402,11 +425,14 @@ export class PhotoUploadModalComponent {
     }
 
     if (rejected.length > 0) {
-      this.rejectedMessage = rejected.length === 1
-        ? rejected[0]
-        : `${rejected.length} archivos rechazados: ${rejected.slice(0, 3).join(", ")}${rejected.length > 3 ? "..." : ""}`;
+      this.rejectedMessage =
+        rejected.length === 1
+          ? rejected[0]
+          : `${rejected.length} archivos rechazados: ${rejected.slice(0, 3).join(", ")}${rejected.length > 3 ? "..." : ""}`;
       if (this.rejectedTimer) clearTimeout(this.rejectedTimer);
-      this.rejectedTimer = setTimeout(() => { this.rejectedMessage = ""; }, 4000);
+      this.rejectedTimer = setTimeout(() => {
+        this.rejectedMessage = "";
+      }, 4000);
     }
 
     for (const file of validFiles) {
@@ -435,7 +461,11 @@ export class PhotoUploadModalComponent {
       URL.revokeObjectURL(url);
       let { width, height } = img;
       const maxDim = this.MAX_DIMENSION;
-      if (width <= maxDim && height <= maxDim && file.size <= this.COMPRESS_THRESHOLD) {
+      if (
+        width <= maxDim &&
+        height <= maxDim &&
+        file.size <= this.COMPRESS_THRESHOLD
+      ) {
         return; // No compression needed
       }
       if (width > maxDim || height > maxDim) {
@@ -452,7 +482,10 @@ export class PhotoUploadModalComponent {
       canvas.toBlob(
         (blob) => {
           if (blob && blob.size < file.size) {
-            const compressed = new File([blob], file.name, { type: "image/jpeg", lastModified: Date.now() });
+            const compressed = new File([blob], file.name, {
+              type: "image/jpeg",
+              lastModified: Date.now(),
+            });
             this.selectedFiles[index] = compressed;
           }
         },

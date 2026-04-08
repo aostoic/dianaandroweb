@@ -175,8 +175,12 @@ import { MediaItem } from "../../models/wedding.model";
                         (error)="onImageError(item.id)"
                       />
                       @if (errorImages[item.id]) {
-                        <div class="absolute inset-0 flex items-center justify-center bg-white/5">
-                          <span class="material-icons text-white/30 text-2xl">broken_image</span>
+                        <div
+                          class="absolute inset-0 flex items-center justify-center bg-white/5"
+                        >
+                          <span class="material-icons text-white/30 text-2xl"
+                            >broken_image</span
+                          >
                         </div>
                       }
                     </div>
@@ -327,7 +331,9 @@ import { MediaItem } from "../../models/wedding.model";
                 (click)="$event.stopPropagation()"
                 class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-white/10 hover:bg-white/20 text-white transition-colors"
               >
-                <span class="material-icons" style="font-size: 14px">download</span>
+                <span class="material-icons" style="font-size: 14px"
+                  >download</span
+                >
                 Descargar
               </a>
               @if (isOwn(lightboxItem)) {
@@ -386,13 +392,22 @@ import { MediaItem } from "../../models/wedding.model";
         animation: lightboxExit 0.2s ease-out forwards;
       }
       .skeleton-shimmer {
-        background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.03) 25%,
+          rgba(255, 255, 255, 0.08) 50%,
+          rgba(255, 255, 255, 0.03) 75%
+        );
         background-size: 200% 100%;
         animation: shimmer 1.5s infinite;
       }
       @keyframes shimmer {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
       }
       .media-spinner {
         width: 32px;
@@ -473,7 +488,9 @@ export class PhotosComponent implements OnInit, OnDestroy {
 
   get currentLightboxIndex(): number {
     if (!this.lightboxItem) return 0;
-    const idx = this.filteredItems.findIndex((m) => m.id === this.lightboxItem!.id);
+    const idx = this.filteredItems.findIndex(
+      (m) => m.id === this.lightboxItem!.id,
+    );
     return idx >= 0 ? idx : 0;
   }
 
