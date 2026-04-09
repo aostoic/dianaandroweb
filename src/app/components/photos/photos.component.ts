@@ -64,19 +64,29 @@ import { MediaItem } from "../../models/wedding.model";
     <!-- Gallery Modal -->
     @if (showGallery) {
       <div
-        class="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex flex-col gallery-overlay-enter"
+        class="fixed inset-0 z-50 bg-black flex flex-col gallery-overlay-enter"
+        style="touch-action: pan-y"
       >
         <!-- Gallery Header -->
-        <div class="flex items-center justify-between px-4 py-3 flex-shrink-0">
+        <div
+          class="flex items-center justify-between px-4 py-3 flex-shrink-0 border-b border-white/10 bg-black z-10"
+        >
           <div class="flex items-center gap-3">
             <h3
-              class="text-white text-lg"
-              style="margin: 0; font-size: 1.8rem !important"
+              class="text-white font-medium"
+              style="margin: 0; font-size: 1.1rem"
             >
               Galería
             </h3>
-            <span class="text-white/50 text-xs"
-              >{{ mediaItems.length }} archivos</span
+            <span class="text-white/40 text-xs"
+              >{{ filteredItems.length }}
+              {{
+                filterType === "video"
+                  ? "videos"
+                  : filterType === "photo"
+                    ? "fotos"
+                    : "archivos"
+              }}</span
             >
           </div>
           <div class="flex items-center gap-2">
@@ -126,11 +136,15 @@ import { MediaItem } from "../../models/wedding.model";
         </div>
 
         <!-- Gallery Grid -->
-        <div class="flex-1 overflow-y-auto px-3 pb-4 gallery-scroll">
+        <div
+          class="flex-1 overflow-y-auto overscroll-contain px-2 pb-20 pt-2 gallery-scroll"
+          style="-webkit-overflow-scrolling: touch; touch-action: pan-y"
+        >
           @if (loading) {
-            <div class="flex flex-col items-center justify-center py-20">
-              <div class="media-spinner mb-3"></div>
-              <p class="text-white/50 text-sm">Cargando galería...</p>
+            <div class="grid grid-cols-3 sm:grid-cols-4 gap-1">
+              @for (i of skeletonItems; track i) {
+                <div class="aspect-square rounded-md skeleton-shimmer"></div>
+              }
             </div>
           } @else if (filteredItems.length === 0) {
             <div class="flex flex-col items-center justify-center py-20">
@@ -152,10 +166,10 @@ import { MediaItem } from "../../models/wedding.model";
               </button>
             </div>
           } @else {
-            <div class="grid grid-cols-3 sm:grid-cols-4 gap-1.5">
+            <div class="grid grid-cols-3 sm:grid-cols-4 gap-1">
               @for (item of filteredItems; track item.id) {
                 <div
-                  class="relative aspect-square cursor-pointer group overflow-hidden rounded-lg bg-white/5"
+                  class="relative aspect-square cursor-pointer group overflow-hidden rounded-md bg-white/5"
                   (click)="openLightbox(item)"
                 >
                   @if (item.type === "photo") {
@@ -409,19 +423,6 @@ import { MediaItem } from "../../models/wedding.model";
           background-position: -200% 0;
         }
       }
-      .media-spinner {
-        width: 32px;
-        height: 32px;
-        border: 3px solid rgba(255, 255, 255, 0.1);
-        border-top-color: var(--color-gold);
-        border-radius: 50%;
-        animation: spin 0.8s linear infinite;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
       .gallery-scroll::-webkit-scrollbar {
         width: 3px;
       }
@@ -446,6 +447,8 @@ export class PhotosComponent implements OnInit, OnDestroy {
   // Image loading states
   loadedImages: Record<string, boolean> = {};
   errorImages: Record<string, boolean> = {};
+
+  skeletonItems = Array.from({ length: 12 }, (_, i) => i);
 
   // Touch/swipe tracking
   private touchStartX = 0;

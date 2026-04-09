@@ -53,60 +53,98 @@ import { UploadProgress } from "../../models/wedding.model";
           <div class="px-5 pb-5 overflow-y-auto flex-1 min-h-0">
             <!-- Uploading state -->
             @if (isUploading) {
-              <div class="space-y-3 mb-4">
+              <!-- Global progress -->
+              <div class="mb-4">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-xs font-medium text-gray-700">
+                    Subiendo {{ completedCount }} de {{ uploadQueue.length }}
+                  </span>
+                  <span class="text-xs text-gray-400"
+                    >{{ globalProgress }}%</span
+                  >
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2">
+                  <div
+                    class="h-2 rounded-full transition-all duration-300"
+                    [style.width.%]="globalProgress"
+                    [style.background]="
+                      allDone ? '#22c55e' : 'var(--color-gold)'
+                    "
+                  ></div>
+                </div>
+                @if (errorCount > 0 && !allDone) {
+                  <p class="text-[10px] text-red-400 mt-1">
+                    {{ errorCount }} con error
+                  </p>
+                }
+              </div>
+
+              <!-- Compact file list -->
+              <div class="space-y-1.5 mb-4 max-h-[40vh] overflow-y-auto">
                 @for (item of uploadQueue; track item.file.name + $index) {
-                  <div class="border border-gray-100 rounded-xl p-3">
-                    <div class="flex items-center gap-3">
-                      @if (item.preview) {
-                        <img
-                          [src]="item.preview"
-                          class="w-12 h-12 object-cover rounded-lg flex-shrink-0"
-                          alt="preview"
-                        />
-                      } @else {
-                        <div
-                          class="w-12 h-12 rounded-lg flex-shrink-0 bg-gray-100 flex items-center justify-center"
+                  <div
+                    class="flex items-center gap-2 px-2 py-1.5 rounded-lg"
+                    [class.bg-gray-50]="
+                      item.status === 'pending' || item.status === 'uploading'
+                    "
+                    [class.bg-green-50]="item.status === 'done'"
+                    [class.bg-red-50]="item.status === 'error'"
+                  >
+                    @if (item.preview) {
+                      <img
+                        [src]="item.preview"
+                        class="w-8 h-8 object-cover rounded flex-shrink-0"
+                        alt="preview"
+                      />
+                    } @else {
+                      <div
+                        class="w-8 h-8 rounded flex-shrink-0 bg-gray-100 flex items-center justify-center"
+                      >
+                        <span
+                          class="material-icons text-gray-400"
+                          style="font-size: 16px"
+                          >videocam</span
                         >
-                          <span class="material-icons text-gray-400"
-                            >videocam</span
-                          >
-                        </div>
-                      }
-                      <div class="flex-1 min-w-0">
-                        <p class="text-xs text-gray-600 truncate">
-                          {{ item.file.name }}
-                        </p>
-                        <div
-                          class="w-full bg-gray-100 rounded-full h-1.5 mt-1.5"
-                        >
+                      </div>
+                    }
+                    <div class="flex-1 min-w-0">
+                      <p class="text-[11px] text-gray-600 truncate">
+                        {{ item.file.name }}
+                      </p>
+                      @if (item.status === "uploading") {
+                        <div class="w-full bg-gray-200 rounded-full h-1 mt-1">
                           <div
-                            class="h-1.5 rounded-full transition-all duration-300"
+                            class="h-1 rounded-full transition-all duration-300"
+                            style="background: var(--color-gold)"
                             [style.width.%]="item.progress"
-                            [style.background]="
-                              item.status === 'error'
-                                ? '#ef4444'
-                                : item.status === 'done'
-                                  ? '#22c55e'
-                                  : 'var(--color-gold)'
-                            "
                           ></div>
                         </div>
-                        <div class="flex items-center justify-between mt-1">
-                          <span class="text-[10px] text-gray-400">
-                            @if (item.status === "uploading") {
-                              {{ item.progress }}%
-                            } @else if (item.status === "done") {
-                              <span class="text-green-500">✓ Subido</span>
-                            } @else if (item.status === "error") {
-                              <span class="text-red-500">{{
-                                item.error || "Error"
-                              }}</span>
-                            } @else {
-                              En espera...
-                            }
-                          </span>
-                        </div>
-                      </div>
+                      }
+                    </div>
+                    <div class="flex-shrink-0">
+                      @if (item.status === "done") {
+                        <span
+                          class="material-icons text-green-500"
+                          style="font-size: 16px"
+                          >check_circle</span
+                        >
+                      } @else if (item.status === "error") {
+                        <span
+                          class="material-icons text-red-400"
+                          style="font-size: 16px"
+                          >error</span
+                        >
+                      } @else if (item.status === "uploading") {
+                        <span class="text-[10px] text-gray-400"
+                          >{{ item.progress }}%</span
+                        >
+                      } @else {
+                        <span
+                          class="material-icons text-gray-300"
+                          style="font-size: 16px"
+                          >schedule</span
+                        >
+                      }
                     </div>
                   </div>
                 }
@@ -235,7 +273,9 @@ import { UploadProgress } from "../../models/wedding.model";
                     <span class="text-xs font-medium text-gray-600">
                       {{ selectedFiles.length }}
                       {{ selectedFiles.length === 1 ? "archivo" : "archivos" }}
-                      seleccionados
+                      <span class="text-gray-400 font-normal"
+                        >· {{ formatFileSize(totalSize) }}</span
+                      >
                     </span>
                     <button
                       (click)="clearFiles()"
@@ -244,7 +284,7 @@ import { UploadProgress } from "../../models/wedding.model";
                       Limpiar
                     </button>
                   </div>
-                  <div class="grid grid-cols-4 gap-2">
+                  <div class="grid grid-cols-4 sm:grid-cols-5 gap-1.5">
                     @for (
                       preview of filePreviews;
                       track preview.name + $index
@@ -297,10 +337,24 @@ import { UploadProgress } from "../../models/wedding.model";
                 </div>
               }
 
+              <!-- Compression indicator -->
+              @if (pendingCompressions > 0) {
+                <div
+                  class="mb-3 flex items-center gap-2 px-3 py-2 bg-amber-50 border border-amber-100 rounded-xl"
+                >
+                  <div
+                    class="w-4 h-4 border-2 border-amber-400 border-t-transparent rounded-full animate-spin"
+                  ></div>
+                  <span class="text-xs text-amber-700"
+                    >Optimizando imágenes...</span
+                  >
+                </div>
+              }
+
               <!-- Upload button -->
               <button
                 (click)="startUpload()"
-                [disabled]="!canUpload"
+                [disabled]="!canUpload || pendingCompressions > 0"
                 class="w-full py-3 rounded-full text-sm font-medium transition-all duration-300 flex items-center justify-center gap-2"
                 [style.background]="canUpload ? 'var(--color-gold)' : '#e5e7eb'"
                 [style.color]="canUpload ? '#fff' : '#9ca3af'"
@@ -361,16 +415,40 @@ export class PhotoUploadModalComponent {
   isUploading = false;
   uploadQueue: UploadProgress[] = [];
   allDone = false;
+  pendingCompressions = 0;
+  private activeUploads = 0;
 
   private readonly MAX_FILE_SIZE = 400 * 1024 * 1024; // 400MB
   private readonly COMPRESS_THRESHOLD = 4 * 1024 * 1024; // 4MB
   private readonly MAX_DIMENSION = 2400;
+  private readonly CONCURRENT_UPLOADS = 2;
   private rejectedTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private mediaService: MediaService) {}
 
   get canUpload(): boolean {
     return this.uploaderName.trim().length > 0 && this.selectedFiles.length > 0;
+  }
+
+  get totalSize(): number {
+    return this.selectedFiles.reduce((sum, f) => sum + f.size, 0);
+  }
+
+  get globalProgress(): number {
+    if (this.uploadQueue.length === 0) return 0;
+    const total = this.uploadQueue.reduce(
+      (sum, item) => sum + item.progress,
+      0,
+    );
+    return Math.round(total / this.uploadQueue.length);
+  }
+
+  get completedCount(): number {
+    return this.uploadQueue.filter((i) => i.status === "done").length;
+  }
+
+  get errorCount(): number {
+    return this.uploadQueue.filter((i) => i.status === "error").length;
   }
 
   close(): void {
@@ -455,6 +533,7 @@ export class PhotoUploadModalComponent {
   }
 
   private compressImage(file: File, index: number): void {
+    this.pendingCompressions++;
     const img = new Image();
     const url = URL.createObjectURL(file);
     img.onload = () => {
@@ -466,7 +545,8 @@ export class PhotoUploadModalComponent {
         height <= maxDim &&
         file.size <= this.COMPRESS_THRESHOLD
       ) {
-        return; // No compression needed
+        this.pendingCompressions--;
+        return;
       }
       if (width > maxDim || height > maxDim) {
         const ratio = Math.min(maxDim / width, maxDim / height);
@@ -477,7 +557,10 @@ export class PhotoUploadModalComponent {
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext("2d");
-      if (!ctx) return;
+      if (!ctx) {
+        this.pendingCompressions--;
+        return;
+      }
       ctx.drawImage(img, 0, 0, width, height);
       canvas.toBlob(
         (blob) => {
@@ -488,12 +571,16 @@ export class PhotoUploadModalComponent {
             });
             this.selectedFiles[index] = compressed;
           }
+          this.pendingCompressions--;
         },
         "image/jpeg",
         0.85,
       );
     };
-    img.onerror = () => URL.revokeObjectURL(url);
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      this.pendingCompressions--;
+    };
     img.src = url;
   }
 
@@ -551,6 +638,7 @@ export class PhotoUploadModalComponent {
 
     this.isUploading = true;
     this.allDone = false;
+    this.activeUploads = 0;
     this.uploadQueue = this.selectedFiles.map((file) => ({
       file,
       progress: 0,
@@ -558,18 +646,17 @@ export class PhotoUploadModalComponent {
       preview: this.filePreviews.find((p) => p.name === file.name)?.url,
     }));
 
-    this.uploadNext(0);
+    for (let i = 0; i < this.CONCURRENT_UPLOADS; i++) {
+      this.startNextPending();
+    }
   }
 
-  private uploadNext(index: number): void {
-    if (index >= this.uploadQueue.length) {
-      this.allDone = true;
-      this.uploadComplete.emit();
-      return;
-    }
+  private startNextPending(): void {
+    const item = this.uploadQueue.find((i) => i.status === "pending");
+    if (!item) return;
 
-    const item = this.uploadQueue[index];
     item.status = "uploading";
+    this.activeUploads++;
 
     this.mediaService
       .uploadFile(item.file, this.uploaderName.trim(), this.caption.trim())
@@ -581,14 +668,28 @@ export class PhotoUploadModalComponent {
           item.status = "error";
           item.progress = 0;
           item.error = err?.error?.error || "Error al subir";
-          this.uploadNext(index + 1);
+          this.activeUploads--;
+          this.startNextPending();
+          this.checkAllDone();
         },
         complete: () => {
           item.status = "done";
           item.progress = 100;
-          this.uploadNext(index + 1);
+          this.activeUploads--;
+          this.startNextPending();
+          this.checkAllDone();
         },
       });
+  }
+
+  private checkAllDone(): void {
+    const hasPendingOrUploading = this.uploadQueue.some(
+      (i) => i.status === "pending" || i.status === "uploading",
+    );
+    if (!hasPendingOrUploading) {
+      this.allDone = true;
+      this.uploadComplete.emit();
+    }
   }
 
   resetAndClose(): void {
@@ -602,6 +703,8 @@ export class PhotoUploadModalComponent {
     this.isUploading = false;
     this.uploadQueue = [];
     this.allDone = false;
+    this.activeUploads = 0;
+    this.pendingCompressions = 0;
     this.caption = "";
     this.rejectedMessage = "";
     if (this.rejectedTimer) {
