@@ -1,4 +1,13 @@
-import { Component, OnInit, OnDestroy, AfterViewChecked, HostListener, ElementRef, ViewChild, NgZone } from "@angular/core";
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewChecked,
+  HostListener,
+  ElementRef,
+  ViewChild,
+  NgZone,
+} from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { PhotoUploadModalComponent } from "../photo-upload-modal/photo-upload-modal.component";
 import { MediaService } from "../../services/media.service";
@@ -220,8 +229,7 @@ import { MediaItem } from "../../models/wedding.model";
                     <div
                       class="w-full h-full bg-gray-800 flex items-center justify-center"
                     >
-                      <span
-                        class="material-icons text-white/60 text-4xl"
+                      <span class="material-icons text-white/60 text-4xl"
                         >play_circle_filled</span
                       >
                     </div>
@@ -256,7 +264,10 @@ import { MediaItem } from "../../models/wedding.model";
             </div>
             <!-- Sentinel for infinite scroll -->
             @if (displayCount < filteredItems.length) {
-              <div #scrollSentinel class="h-16 flex items-center justify-center">
+              <div
+                #scrollSentinel
+                class="h-16 flex items-center justify-center"
+              >
                 <span class="text-white/30 text-xs">Cargando más...</span>
               </div>
             }
@@ -475,13 +486,16 @@ export class PhotosComponent implements OnInit, OnDestroy, AfterViewChecked {
   private touchStartY = 0;
 
   // Infinite scroll
-  @ViewChild('scrollSentinel') scrollSentinelRef!: ElementRef;
+  @ViewChild("scrollSentinel") scrollSentinelRef!: ElementRef;
   private scrollObserver: IntersectionObserver | null = null;
   private lastObservedEl: Element | null = null;
 
   private openUploadHandler = () => this.openUploadModal();
 
-  constructor(private mediaService: MediaService, private ngZone: NgZone) {
+  constructor(
+    private mediaService: MediaService,
+    private ngZone: NgZone,
+  ) {
     window.addEventListener("open-photo-upload", this.openUploadHandler);
   }
 
@@ -630,7 +644,7 @@ export class PhotosComponent implements OnInit, OnDestroy, AfterViewChecked {
             });
           }
         },
-        { rootMargin: '200px' },
+        { rootMargin: "200px" },
       );
     }
     this.scrollObserver.observe(el);
