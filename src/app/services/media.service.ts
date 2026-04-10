@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpEventType } from "@angular/common/http";
-import { Observable, Subject, map, catchError, of } from "rxjs";
+import { Observable, Subject, map, catchError, of, timeout } from "rxjs";
 import { MediaItem, UploadProgress } from "../models/wedding.model";
 
 // URL del Cloudflare Worker desplegado
@@ -29,6 +29,7 @@ export class MediaService {
 
   getMedia(): Observable<MediaItem[]> {
     return this.http.get<MediaItem[]>(`${API_BASE}/api/media`).pipe(
+      timeout(15000),
       map((items) =>
         items.map((item) => ({
           ...item,

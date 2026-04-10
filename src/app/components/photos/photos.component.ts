@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from "@angular/core";
+import { Component, OnInit, OnDestroy, AfterViewChecked, HostListener, ElementRef, ViewChild, NgZone } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { PhotoUploadModalComponent } from "../photo-upload-modal/photo-upload-modal.component";
 import { MediaService } from "../../services/media.service";
@@ -146,6 +146,24 @@ import { MediaItem } from "../../models/wedding.model";
                 <div class="aspect-square rounded-md skeleton-shimmer"></div>
               }
             </div>
+          } @else if (loadError) {
+            <div class="flex flex-col items-center justify-center py-20">
+              <span class="material-icons text-5xl text-white/20 mb-3"
+                >cloud_off</span
+              >
+              <p class="text-white/50 text-sm mb-2">
+                No se pudo cargar la galería
+              </p>
+              <p class="text-white/30 text-xs mb-4">
+                Revisa tu conexión e intenta de nuevo
+              </p>
+              <button
+                (click)="retryLoad()"
+                class="px-5 py-2 rounded-full text-sm font-medium border border-white/30 text-white hover:bg-white/10 transition-all"
+              >
+                Reintentar
+              </button>
+            </div>
           } @else if (filteredItems.length === 0) {
             <div class="flex flex-col items-center justify-center py-20">
               <span class="material-icons text-5xl text-white/20 mb-3"
@@ -167,7 +185,7 @@ import { MediaItem } from "../../models/wedding.model";
             </div>
           } @else {
             <div class="grid grid-cols-3 sm:grid-cols-4 gap-1">
-              @for (item of filteredItems; track item.id) {
+              @for (item of displayedItems; track item.id) {
                 <div
                   class="relative aspect-square cursor-pointer group overflow-hidden rounded-md bg-white/5"
                   (click)="openLightbox(item)"
@@ -200,21 +218,12 @@ import { MediaItem } from "../../models/wedding.model";
                     </div>
                   } @else {
                     <div
-                      class="w-full h-full bg-gray-800 flex items-center justify-center relative"
+                      class="w-full h-full bg-gray-800 flex items-center justify-center"
                     >
-                      <video
-                        [src]="item.url"
-                        class="w-full h-full object-cover"
-                        preload="metadata"
-                      ></video>
-                      <div
-                        class="absolute inset-0 flex items-center justify-center bg-black/30"
+                      <span
+                        class="material-icons text-white/60 text-4xl"
+                        >play_circle_filled</span
                       >
-                        <span
-                          class="material-icons text-white text-3xl drop-shadow-lg"
-                          >play_circle_filled</span
-                        >
-                      </div>
                     </div>
                   }
                   <!-- Overlay con info -->
@@ -245,6 +254,12 @@ import { MediaItem } from "../../models/wedding.model";
                 </div>
               }
             </div>
+            <!-- Sentinel for infinite scroll -->
+            @if (displayCount < filteredItems.length) {
+              <div #scrollSentinel class="h-16 flex items-center justify-center">
+                <span class="text-white/30 text-xs">Cargando más...</span>
+              </div>
+            }
           }
         </div>
 
@@ -433,16 +448,21 @@ import { MediaItem } from "../../models/wedding.model";
     `,
   ],
 })
-export class PhotosComponent implements OnInit, OnDestroy {
+export class PhotosComponent implements OnInit, OnDestroy, AfterViewChecked {
   showUploadModal = false;
   showGallery = false;
   loading = false;
+  loadError = false;
 
   mediaItems: MediaItem[] = [];
   mediaCount = 0;
   filterType: "all" | "photo" | "video" = "all";
   lightboxItem: MediaItem | null = null;
   lightboxClosing = false;
+
+  // Batched rendering
+  private static readonly BATCH_SIZE = 30;
+  displayCount = PhotosComponent.BATCH_SIZE;
 
   // Image loading states
   loadedImages: Record<string, boolean> = {};
@@ -454,15 +474,25 @@ export class PhotosComponent implements OnInit, OnDestroy {
   private touchStartX = 0;
   private touchStartY = 0;
 
+  // Infinite scroll
+  @ViewChild('scrollSentinel') scrollSentinelRef!: ElementRef;
+  private scrollObserver: IntersectionObserver | null = null;
+  private lastObservedEl: Element | null = null;
+
   private openUploadHandler = () => this.openUploadModal();
 
-  constructor(private mediaService: MediaService) {
+  constructor(private mediaService: MediaService, private ngZone: NgZone) {
     window.addEventListener("open-photo-upload", this.openUploadHandler);
   }
 
   ngOnDestroy(): void {
     window.removeEventListener("open-photo-upload", this.openUploadHandler);
+    this.destroyScrollObserver();
     this.setBodyScroll(true);
+  }
+
+  ngAfterViewChecked(): void {
+    this.observeSentinel();
   }
 
   ngOnInit(): void {
@@ -487,6 +517,10 @@ export class PhotosComponent implements OnInit, OnDestroy {
   get filteredItems(): MediaItem[] {
     if (this.filterType === "all") return this.mediaItems;
     return this.mediaItems.filter((m) => m.type === this.filterType);
+  }
+
+  get displayedItems(): MediaItem[] {
+    return this.filteredItems.slice(0, this.displayCount);
   }
 
   get currentLightboxIndex(): number {
@@ -528,6 +562,8 @@ export class PhotosComponent implements OnInit, OnDestroy {
 
   openGallery(): void {
     this.showGallery = true;
+    this.loadError = false;
+    this.displayCount = PhotosComponent.BATCH_SIZE;
     this.setBodyScroll(false);
     this.loadMedia();
   }
@@ -535,7 +571,13 @@ export class PhotosComponent implements OnInit, OnDestroy {
   closeGallery(): void {
     this.showGallery = false;
     this.lightboxItem = null;
+    this.destroyScrollObserver();
     this.setBodyScroll(true);
+  }
+
+  retryLoad(): void {
+    this.loadError = false;
+    this.loadMedia();
   }
 
   refreshMedia(): void {
@@ -557,16 +599,49 @@ export class PhotosComponent implements OnInit, OnDestroy {
 
   private loadMedia(): void {
     this.loading = true;
+    this.loadError = false;
     this.mediaService.getMedia().subscribe({
       next: (items) => {
         this.mediaItems = items;
         this.mediaCount = items.length;
         this.loading = false;
+        if (items.length === 0) {
+          this.loadError = false;
+        }
       },
       error: () => {
         this.loading = false;
+        this.loadError = true;
       },
     });
+  }
+
+  private observeSentinel(): void {
+    const el = this.scrollSentinelRef?.nativeElement;
+    if (!el || el === this.lastObservedEl) return;
+    this.lastObservedEl = el;
+
+    if (!this.scrollObserver) {
+      this.scrollObserver = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting) {
+            this.ngZone.run(() => {
+              this.displayCount += PhotosComponent.BATCH_SIZE;
+            });
+          }
+        },
+        { rootMargin: '200px' },
+      );
+    }
+    this.scrollObserver.observe(el);
+  }
+
+  private destroyScrollObserver(): void {
+    if (this.scrollObserver) {
+      this.scrollObserver.disconnect();
+      this.scrollObserver = null;
+      this.lastObservedEl = null;
+    }
   }
 
   openLightbox(item: MediaItem): void {
